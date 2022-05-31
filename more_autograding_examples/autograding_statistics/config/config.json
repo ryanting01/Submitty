@@ -1,0 +1,16 @@
+{
+    "required_capabilities": "cpp",
+    "assignment_message": "",
+
+    "testcases":
+    [
+        {
+            "type": "Compilation",
+            "title": "Compilation",
+            "command": "/usr/bin/gcc -Wall -Werror -o a.out *.c -lm",
+            "details": "/usr/bin/gcc -Wall -Werror -o a.out *.c -lm",
+            "executable_name": "./a.out",
+            "points": 5
+        }
+    ]
+}
