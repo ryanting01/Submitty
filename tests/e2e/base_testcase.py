@@ -17,6 +17,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 import sys
+import ssl
 # explicitly add this import path, so we can run it on a local host
 sys.path.append('../python_submitty_utils/')
 
@@ -46,6 +47,7 @@ class BaseTestCase(unittest.TestCase):
             self.test_url = os.environ['TEST_URL']
         else:
             self.test_url = BaseTestCase.TEST_URL
+
         self.driver = None
         """ :type driver: webdriver.Chrome """
         self.options = webdriver.ChromeOptions()
@@ -232,7 +234,7 @@ class BaseTestCase(unittest.TestCase):
         netloc += ':8443'
         address = parsed._replace(netloc=netloc).geturl()
 
-        self.ws = create_connection(address, cookie = submitty_session_cookie['name'] +'='+ submitty_session_cookie['value'], header={"User-Agent": "python-socket-client"})
+        self.ws = create_connection(address,sslopt={"cert_reqs": ssl.CERT_NONE}, cookie = submitty_session_cookie['name'] +'='+ submitty_session_cookie['value'], header={"User-Agent": "python-socket-client"})
         new_connection_msg = json.dumps({'type': 'new_connection', 'page': self.semester + '-sample-' + self.socket_page})
         self.ws.send(new_connection_msg)
 
