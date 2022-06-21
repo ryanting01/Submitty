@@ -445,6 +445,21 @@ jobs:
               sudo systemctl restart submitty_autograding_shipper
               export DISPLAY=:99
               chromedriver --url-base=/wd/hub &
+
+          # TODO: Remove this block after upgrading jsPDF
+          - name: Cache Node Modules
+            uses: actions/cache@v2
+            with:
+              path: ~/.npm
+              key: ${{ runner.os }}-cache-node-modules-dev-${{ hashFiles('**/package-lock.json') }}
+              restore-keys: |
+                 ${{ runner.os }}-cache-node-modules-dev
+
+          - name: Install node dependencies
+            working-directory: ${{env.SUBMITTY_REPOSITORY}}/site
+            run: |
+              npm install file-saver --save
+              npm install --production=false
               
           - name: Run cypress e2e tests with pam auth
             uses: cypress-io/github-action@v2
@@ -461,21 +476,6 @@ jobs:
               echo "Authentication Method => $(sudo jq -r ".authentication_method" /usr/local/submitty/config/database.json)"
               TEST_URL="https://localhost" python3 -m unittest discover -v --start-directory tests
               sudo bash tests/test_site_error_log.sh
-
-          # TODO: Remove this block after upgrading jsPDF
-          - name: Cache Node Modules
-            uses: actions/cache@v2
-            with:
-              path: ~/.npm
-              key: ${{ runner.os }}-cache-node-modules-dev-${{ hashFiles('**/package-lock.json') }}
-              restore-keys: |
-                 ${{ runner.os }}-cache-node-modules-dev
-
-          - name: Install node dependencies
-            working-directory: ${{env.SUBMITTY_REPOSITORY}}/site
-            run: |
-              npm install file-saver --save
-              npm install --production=false
 
           - name: Run API tests
             working-directory: ${{env.SUBMITTY_REPOSITORY}}/site
