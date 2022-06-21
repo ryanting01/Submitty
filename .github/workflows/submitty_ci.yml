@@ -445,6 +445,15 @@ jobs:
               sudo systemctl restart submitty_autograding_shipper
               export DISPLAY=:99
               chromedriver --url-base=/wd/hub &
+              
+          - name: Run cypress e2e tests with pam auth
+            uses: cypress-io/github-action@v2
+            with:
+              config: baseUrl=https://localhost
+              working-directory: ${{env.SUBMITTY_REPOSITORY}}/site
+              browser: chrome
+              headless: true
+              env: run_area=CI
 
           - name: Run selenium e2e tests with pam auth
             run: |
@@ -473,15 +482,6 @@ jobs:
             run: npm run test:api
             env:
               BASE_URL: https://localhost
-
-          - name: Run cypress e2e tests with pam auth
-            uses: cypress-io/github-action@v2
-            with:
-              config: baseUrl=https://localhost
-              working-directory: ${{env.SUBMITTY_REPOSITORY}}/site
-              browser: chrome
-              headless: true
-              env: run_area=CI
 
           - name: Stop autograding services
             run: |
