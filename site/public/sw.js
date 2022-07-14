@@ -1,12 +1,14 @@
 const staticDevPort = 'Submittty';
-const assets = [
-];
+const assets = async (resources) => {
+    const cache = await caches.open("v1");
+    await cache.addAll(resources);
+  };
 
 self.addEventListener('install', (installEvent) => {
     installEvent.waitUntil(
-        caches.open(staticDevPort).then((cache) => {
-            cache.addAll(assets);
-        }),
+        assets([
+            "./css/forum.css"
+          ])
     );
 });
 
