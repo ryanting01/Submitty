@@ -216,12 +216,14 @@ function newUploadCourseMaterialsForm() {
 
 function newEditCourseMaterialsFolderForm(id, dir, is_hidden) {
     let form = $('#edit-course-materials-folder-form');
-    $('#hide-folder-materials-checkbox-edit', form).prop('checked', false);
+    let hide_materials_box = $('#hide-folder-materials-checkbox-edit', form);
     if (is_hidden === true) {
-        $('#hide-folder-materials-checkbox-edit', form).prop('checked', true);
+        hide_materials_box.prop('checked', true);
     }
-    $('#hide-folder-materials-checkbox-edit:checked ~ #edit-folder-form-hide-warning').show();
-    $('#hide-folder-materials-checkbox-edit:not(:checked) ~ #edit-folder-form-hide-warning').hide();
+    else {
+        hide_materials_box.prop('checked', false);
+    }
+    toggleHideMaterialsWarning('hide-folder-materials-checkbox-edit');
     $('#material-folder-edit-form', form).attr('data-id', id);
     $("#show-some-section-selection-edit", form).hide();
     $("#all-sections-showing-yes", form).prop('checked',false);
@@ -240,17 +242,17 @@ function newEditCourseMaterialsForm(id, dir, this_file_section, this_hide_from_s
 
     element._flatpickr.setDate(release_time);
 
-    if(this_hide_from_students === "1"){
-        $("#hide-materials-checkbox-edit", form).prop('checked',true);
+    let hide_materials_box = $("#hide-materials-checkbox-edit", form);
+
+    if (this_hide_from_students === "1") {
+        hide_materials_box.prop('checked',true);
     }
 
-    else{
-        $("#hide-materials-checkbox-edit", form).prop('checked',false);
+    else {
+        hide_materials_box.prop('checked',false);
     }
 
-    $('#hide-materials-checkbox-edit:checked ~ #edit-form-hide-warning').show();
-    $('#hide-materials-checkbox-edit:not(:checked) ~ #edit-form-hide-warning').hide();
-
+    toggleHideMaterialsWarning('hide-materials-checkbox-edit');
     $('#show-some-section-selection-edit :checkbox:enabled').prop('checked', false);
 
     if(this_file_section.length !== 0){

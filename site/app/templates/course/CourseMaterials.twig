@@ -188,7 +188,22 @@
         }
         return "";
     }
+    {% if user_group == 1 %}
 
+        function toggleHideMaterialsWarning(clicked) {
+            const warningIds = {"hide-materials-checkbox": "upload-form", "hide-materials-checkbox-edit": "edit-form", "hide-folder-materials-checkbox-edit": "edit-folder-form"};
+            var callerId = clicked.target ? clicked.target.id : clicked; //can be an event or id itself
+            var warningMessage = $('#'+callerId+' ~ #'+warningIds[callerId]+'-hide-warning');
+            if($('#'+callerId).is(':checked') && warningMessage.length === 0) {
+                var callerParent = $('#'+callerId).parent().get(0);
+                callerParent.insertAdjacentHTML('beforeend', '<span id="'+warningIds[callerId]+'-hide-warning" class="red-message full-width">\nWarning: Students can view the hidden course material by guessing the corresponding course material ID (a simple number).  It is recommended to instead use the release date feature if it is necessary to prevent students from accessing course materials.\n</span>');
+            }
+            else if($('#'+callerId).is(':not(:checked)')) {
+                warningMessage.remove();
+            }
+        }
+
+    {% endif %}
     window.onload = function () {
         //determine if folders have been left open or closed
         var folderCookie = getCookie('foldersOpen');
@@ -269,6 +284,12 @@
                 }
             });
         }
+    {% if user_group == 1 %}
+
+        $('#hide-materials-checkbox').on('change', toggleHideMaterialsWarning);
+        $('#hide-materials-checkbox-edit').on('change', toggleHideMaterialsWarning);
+
+    {% endif %}
     };
 
 </script>
