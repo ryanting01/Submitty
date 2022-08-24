@@ -17,3 +17,17 @@ self.addEventListener('fetch', (fetchEvent) => {
         }),
     );
 });
+
+self.addEventListener('push', event => {
+    const data = JSON.parse(event.data.text());
+     const options = {
+         body: data.content,
+         icon: 'img/pwa_512.png',
+         data: {
+             url: data.openUrl
+         }
+     };
+     event.waitUntil(
+         self.registration.showNotification(data.title, options)
+     );
+  });

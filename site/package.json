@@ -26,7 +26,8 @@
     "pdfjs-dist": "2.10.377",
     "plotly.js-dist": "2.12.1",
     "shortcut-buttons-flatpickr": "0.4.0",
-    "twig": "1.15.4"
+    "twig": "1.15.4",
+    "web-push": "^3.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
@@ -62,6 +63,7 @@
     "eslint:fix": "eslint \"public/js/**/*.js\" \"cypress/**/*.js\" \"ts/**/*.js\" \"ts/**/*.ts\" \"tests/ts/**/*.js\" --fix",
     "test": "jest",
     "test:api": "jest --config jest.config.api.js",
-    "build": "tsc -p . && node .build.js"
+    "build": "tsc -p . && node .build.js",
+    "web-push": "web-push"
   }
 }
