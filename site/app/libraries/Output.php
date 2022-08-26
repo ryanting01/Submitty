@@ -549,7 +549,7 @@ HTML;
 
     public function addServiceWorker(): void {
         /** add the manifest.js and serverice worker files to the page */
-        $this->service_worker = ($this->timestampResource('sw.js', ''));
+        $this->service_worker = $this->core->getConfig()->getBaseUrl() . "/" . 'sw.js';
         $this->manifest_json = $this->timestampResource('manifest.json', '');
     }
 

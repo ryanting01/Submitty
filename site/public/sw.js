@@ -31,3 +31,14 @@ self.addEventListener('push', event => {
          self.registration.showNotification(data.title, options)
      );
   });
+
+
+
+if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker
+                .register("http://localhost:1511/sw.js")
+                .then(res => console.log("service worker registered"))
+                .catch(err => console.log("service worker not registered", err))
+        })
+    }

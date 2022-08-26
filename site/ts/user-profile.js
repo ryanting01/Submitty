@@ -81,14 +81,14 @@ const display_confirmation = () => {
 
 function configurePushSub() {
     if (!('serviceWorker' in navigator)) {
+      console.error('no service worker')
       return;
     }
     console.log("after service worker");
     navigator.serviceWorker.ready
-      .then(function(swreg) {
-        reg = swreg;
+      .then((reg) => {
         console.log("got serviceworker");
-        return swreg.pushManager.getSubscription();
+        return reg.pushManager.getSubscription();
       })
       .then(function(sub) {
         if (sub === null) {
@@ -127,6 +127,9 @@ function configurePushSub() {
         console.log(err);
       });
   }
+
+ 
+
   
 
 function askForNotificationPermission() {
