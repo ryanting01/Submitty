@@ -1,6 +1,6 @@
 
 let storedPrompt;
-let reg;
+let swjs;
 const enableNotificationsButton = $('.enable_notification');
 const pwaBtn = $('.addpwa');
 const browser_lable = $('#browser-support');
@@ -87,8 +87,9 @@ function configurePushSub() {
     console.log("after service worker");
     navigator.serviceWorker.ready
       .then((reg) => {
+        swjs = reg;
         console.log("got serviceworker");
-        return reg.pushManager.getSubscription();
+        return swjs.pushManager.getSubscription();
       })
       .then(function(sub) {
         if (sub === null) {
@@ -96,7 +97,9 @@ function configurePushSub() {
           // Create a new subscription
           var vapidPublicKey = 'BHIJ8RdT7YplbzghbLRP53dSrJVQnBAjKmAq-HBfclBMAG6qrqtf_6WSMveBVUKar5TOr36xL4Vmc21pBIWf8bA';
           var convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
-          return reg.pushManager.subscribe({
+          console.group(convertedVapidPublicKey);
+          console.group(swjs);
+          return swjs.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: convertedVapidPublicKey
           });
