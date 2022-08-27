@@ -95,7 +95,7 @@ function configurePushSub() {
         if (sub === null) {
           console.log("creating new subscription");
           // Create a new subscription
-          var vapidPublicKey = 'BHIJ8RdT7YplbzghbLRP53dSrJVQnBAjKmAq-HBfclBMAG6qrqtf_6WSMveBVUKar5TOr36xL4Vmc21pBIWf8bA';
+          var vapidPublicKey = 'BBE6zGMtikC3Wdkma0TF4A6Qs-ehdhv_PpJX1hxkSUgVut6fijqO8OkbzQ5oXZ8zZBugvhj0ztlMgyYeWkmYBao';
           var convertedVapidPublicKey = urlBase64ToUint8Array(vapidPublicKey);
           console.group(convertedVapidPublicKey);
           console.group(swjs);
@@ -106,10 +106,12 @@ function configurePushSub() {
         } else {
           // We have a subscription
           console.log("already have subscription");
+          return sub ;
         }
       })
       .then(function(newSub) {
         console.log("sending subs");
+        console.log(JSON.stringify(newSub));
         return fetch('http://localhost:3000/subscriptions', {
           method: 'POST',
           headers: {
