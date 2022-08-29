@@ -57,7 +57,9 @@ const connectDB = async () => {
   notifications_fetched.rows.forEach(row => {
     webpush.sendNotification(pushSubscription, JSON.stringify({
       title: row.component,
-      content: row.content
+      content: row.content,
+      url : row.metadata.url,
+      from : row.from_user_id
     }));
     
   });

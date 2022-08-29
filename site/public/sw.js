@@ -20,11 +20,13 @@ self.addEventListener('fetch', (fetchEvent) => {
 
 self.addEventListener('push', event => {
     const data = JSON.parse(event.data.text());
-     const options = {
+
+//options could be customized with https://docs.w3cub.com/dom/serviceworkerregistration/shownotification
+    const options = {
          body: data.content,
          icon: 'img/pwa_512.png',
          data: {
-             url: data.openUrl
+             url: data.url
          }
      };
      event.waitUntil(
