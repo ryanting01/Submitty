@@ -14,7 +14,6 @@ env:
   PHP_VER: 7.4
   NODE_VERSION: 16
   PYTHON_VERSION: 3.8
-  SETUP_PHP_ACTION_VER: 2.21.2
 
 
 jobs:
@@ -132,7 +131,7 @@ jobs:
               working-directory: site
       steps:
           - uses: actions/checkout@v2
-          - uses: shivammathur/setup-php@{{ env.SETUP_PHP_ACTION_VER }}
+          - uses: shivammathur/setup-php@2.21.2
 
             with:
               php-version: ${{ env.PHP_VER }}
