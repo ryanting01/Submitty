@@ -139,7 +139,7 @@ jobs:
           - name: Cache Composer
             id: composer-cache
             run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-         - name: Install dependencies
+          - name: Install dependencies
             run: composer install --prefer-dist --dev
           - name: Run php unit tests
             run : php vendor/bin/phpunit
