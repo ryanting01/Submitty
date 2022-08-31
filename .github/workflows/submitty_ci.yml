@@ -132,7 +132,6 @@ jobs:
       steps:
           - uses: actions/checkout@v2
           - uses: shivammathur/setup-php@2.21.2
-
             with:
               php-version: ${{ env.PHP_VER }}
               extensions: imagick
