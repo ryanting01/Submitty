@@ -145,6 +145,10 @@ jobs:
                 key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
                 restore-keys: |
                     ${{ runner.os }}-composer-
+          - name: test
+            run: |
+              composer config platform
+              composer check-platform-reqs 
           - name: Install dependencies
             run: composer install --prefer-dist --dev
           - name: Run php unit tests
