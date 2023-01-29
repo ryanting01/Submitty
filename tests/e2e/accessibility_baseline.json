@@ -4,7 +4,8 @@
     "/courses/{}/{}": [],
     "/courses/{}/{}/gradeable/future_no_tas_homework/update?nav_tab=0": [
         "Attribute “placeholder” not allowed on element “input” at this point.",
-        "Attribute “placeholder” is only allowed when the input type is “email”, “number”, “password”, “search”, “tel”, “text”, or “url”."
+        "Attribute “placeholder” is only allowed when the input type is “email”, “number”, “password”, “search”, “tel”, “text”, or “url”.",
+        "Attribute “maxlength” is only allowed when the input type is “email”, “password”, “search”, “tel”, “text”, or “url”."
     ],
     "/courses/{}/{}/autograding_config?g_id=future_no_tas_homework": [],
     "/courses/{}/{}/gradeable/future_no_tas_lab/grading?view=all": [],
@@ -37,15 +38,19 @@
     ],
     "/courses/s20/sample/polls": [],
     "/courses/s20/sample/polls/newPoll": [],
-    "/courses/{}/{}/course_materials": [],
+    "/courses/{}/{}/course_materials": [
+        "Attribute “maxlength” is only allowed when the input type is “email”, “password”, “search”, “tel”, “text”, or “url”."
+    ],
     "/courses/{}/{}/forum": [
         "The element “input” must not appear as a descendant of the “a” element.",
         "Element “style” not allowed as child of element “div” in this context. (Suppressing further errors from this subtree.)",
         "Element “pre” not allowed as child of element “span” in this context. (Suppressing further errors from this subtree.)",
-        "Consider using the “h1” element as a top-level heading only (all “h1” elements are treated as top-level headings by many screen readers and other tools)."
+        "Consider using the “h1” element as a top-level heading only (all “h1” elements are treated as top-level headings by many screen readers and other tools).",
+        "Attribute “maxlength” is only allowed when the input type is “email”, “password”, “search”, “tel”, “text”, or “url”."
     ],
     "/courses/{}/{}/forum/threads/new": [
-        "Element “style” not allowed as child of element “div” in this context. (Suppressing further errors from this subtree.)"
+        "Element “style” not allowed as child of element “div” in this context. (Suppressing further errors from this subtree.)",
+        "Attribute “maxlength” is only allowed when the input type is “email”, “password”, “search”, “tel”, “text”, or “url”."
     ],
     "/courses/{}/{}/forum/categories": [],
     "/courses/{}/{}/forum/stats": [
