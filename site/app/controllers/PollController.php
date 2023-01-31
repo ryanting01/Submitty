@@ -79,14 +79,14 @@ class PollController extends AbstractController {
             $todays_polls = [];
             $old_polls = [];
             /** @var Poll */
-            foreach ($repo->findAllByStudentIDWithAllOptions($this->core->getUser()->getId()) as $poll) {
+            /*foreach ($repo->findAllByStudentIDWithAllOptions($this->core->getUser()->getId()) as $poll) {
                 if ($poll->getReleaseDate()->format('Y-m-d') === $this->core->getDateTimeNow()->format('Y-m-d')) {
                     $todays_polls[] = $poll;
                 }
                 elseif ($poll->getReleaseDate() < $this->core->getDateTimeNow()) {
                     $old_polls[] = $poll;
                 }
-            }
+            }*/
 
             return new WebResponse(
                 PollView::class,
@@ -125,7 +125,7 @@ class PollController extends AbstractController {
         }
         else {
             /** @var Poll|null */
-            $poll = $repo->findByStudentID($this->core->getUser()->getId(), intval($poll_id));
+            $poll = null;  //$repo->findByStudentID($this->core->getUser()->getId(), intval($poll_id));
             if ($poll === null) {
                 $this->core->addErrorMessage("Invalid Poll ID");
                 return new RedirectResponse($this->core->buildCourseUrl(['polls']));

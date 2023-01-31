@@ -96,9 +96,9 @@ class ReportController extends AbstractController {
             return null;
         });
 
-        if ($this->core->getConfig()->isPollsEnabled()) {
-            $this->generatePollSummaryInternal($poll_base_path);
-        }
+//        if ($this->core->getConfig()->isPollsEnabled()) {
+//            $this->generatePollSummaryInternal($poll_base_path);
+//        }
 
         $this->core->addSuccessMessage("Successfully Generated Grade Summaries");
         $this->core->redirect($this->core->buildCourseUrl(['reports']));
