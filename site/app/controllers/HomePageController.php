@@ -3,6 +3,9 @@
 namespace app\controllers;
 
 use app\libraries\response\RedirectResponse;
+use app\models\gradeable\Component;
+use app\models\gradeable\Gradeable;
+use app\models\gradeable\GradeableUtils;
 use app\models\Course;
 use app\models\User;
 use app\libraries\Core;
@@ -26,6 +29,101 @@ class HomePageController extends AbstractController {
     public function __construct(Core $core) {
         parent::__construct($core);
     }
+
+    /**
+     * Returns all gradeables from all courses for a user
+     * @Route("/api/gradeableComponentPage", methods={"GET"})
+     *
+     * @param string|null $user_id
+     * @return MultiResponse
+     */
+    public function getGradeableComponentPage($user_id = null) {
+
+        // This goes through each course of the user, puts all gradeables into an array,
+        // then for each gradeable it array_maps the info
+
+        $user = $this->core->getUser();
+        if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_SUPERUSER) {
+            $user_id = $user->getId();
+        }
+
+        $gradeables = [];
+        // Load the gradeable information for each course
+        $courses = $this->core->getQueries()->getCourseForUserId($user->getId());
+        foreach ($courses as $course) {
+            $gradeables_of_course = GradeableUtils::getGradeablesFromCourse($this->core, $course);
+            $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
+        }
+
+
+
+        $callback = function (Gradeable $gradeable) {
+            $components = $gradeable->getComponents();
+            $page = components[0]->getPage()
+            return (string)$page;
+            // return $gradeable->getGradeableInfo();
+        };
+
+        return MultiResponse::JsonOnlyResponse(
+            JsonResponse::getSuccessResponse([
+                "gradeable_components_info" => array_map($callback, $gradeables),
+            ])
+        );
+
+        // return MultiResponse::JsonOnlyResponse(
+        //     JsonResponse::getSuccessResponse([
+        //         "gradeable_info" => "hello"
+        //     ])
+        // );
+    }
+
+
+    /**
+     * Returns all gradeables from all courses for a user
+     * @Route("/api/gradeables", methods={"GET"})
+     *
+     * @param string|null $user_id
+     * @return MultiResponse
+     */
+    public function getGradeables($user_id = null) {
+
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: GET, POST");
+
+        // This goes through each course of the user, puts all gradeables into an array,
+        // then for each gradeable it array_maps the info
+
+        $user = $this->core->getUser();
+        if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_SUPERUSER) {
+            $user_id = $user->getId();
+        }
+
+        $gradeables = [];
+        // Load the gradeable information for each course
+        $courses = $this->core->getQueries()->getCourseForUserId($user->getId());
+        foreach ($courses as $course) {
+            $gradeables_of_course = GradeableUtils::getGradeablesFromCourse($this->core, $course);
+            $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
+        }
+
+        $callback = function (Gradeable $gradeable) {
+            return $gradeable->getGradeableInfo();
+        };
+
+        return MultiResponse::JsonOnlyResponse(
+            JsonResponse::getSuccessResponse([
+                "gradeable_info" => array_map($callback, $gradeables),
+            ])
+        );
+
+        // return MultiResponse::JsonOnlyResponse(
+        //     JsonResponse::getSuccessResponse([
+        //         "gradeable_info" => "hello"
+        //     ])
+        // );
+    }
+
 
     /**
      * @Route("/api/courses", methods={"GET"})

@@ -322,6 +322,12 @@ class Gradeable extends AbstractModel {
         $this->modified = false;
     }
 
+    public function getGradeableInfo() {
+        return [
+            "title" => $this->title
+        ];
+    }
+
     /**
      * Exports all of the components so they can be saved to a json
      * @return array

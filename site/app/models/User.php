@@ -373,7 +373,7 @@ class User extends AbstractModel {
      * @return bool
      */
     public function accessFaculty() {
-        return $this->access_level < 3;
+        return $this->access_level < 6;
     }
 
     public function isSuperUser() {
