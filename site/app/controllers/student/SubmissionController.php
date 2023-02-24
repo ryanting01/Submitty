@@ -5,6 +5,8 @@ namespace app\controllers\student;
 use app\controllers\AbstractController;
 use app\libraries\DateUtils;
 use app\libraries\ErrorMessages;
+use app\libraries\Core;
+use app\exceptions\IOException;
 use app\libraries\FileUtils;
 use app\libraries\GradeableType;
 use app\libraries\GradingQueue;
@@ -28,6 +30,67 @@ class SubmissionController extends AbstractController {
         'user_path' => null,
         'assignment_settings' => false
     ];
+    /**
+     * @var array
+     */
+    private $config = [];
+
+    /**
+     * Creates a file with the given contents to be used to upload for a specified part.
+     *
+     * @param string $filename
+     * @param string $content
+     * @param int    $part
+     */
+    private function addUploadFile($filename, $content = "", $part = 1) {
+        $this->config['tmp_path'] = FileUtils::joinPaths(sys_get_temp_dir(), Utils::generateRandomString());
+
+        FileUtils::createDir(FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part), true, 0777);
+        $filepath = FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part, $filename);
+        if (file_put_contents($filepath, $content) === false) {
+            throw new IOException("Could not write file to {$filepath}");
+        }
+        $_FILES["files{$part}"]['name'][] = $filename;
+        $_FILES["files{$part}"]['type'][] = mime_content_type($filepath);
+        $_FILES["files{$part}"]['size'][] = filesize($filepath);
+        $_FILES["files{$part}"]['tmp_name'][] = $filepath;
+        $_FILES["files{$part}"]['error'][] = null;
+    }
+
+
+    /**
+     * Submit a submission to a gradeable
+     * @Route("/api/submit", methods={"POST"})
+     *
+     * @param string|null $user_id
+     * @return MultiResponse
+     */
+    public function submitSubmission($user_id = null) {
+        // $this->core->loadCourseConfig("s23", "development");
+        $this->core->loadCourseConfig($_POST["semester"], $_POST["course"]);
+        
+        $this->core->loadCourseDatabase();
+
+        $name = $_FILES["file"]['name'];
+        $type = $_FILES["file"]['type'];
+        $size = $_FILES["file"]['size'];
+        $tmp_name = $_FILES["file"]['tmp_name'];
+        $error = $_FILES["file"]['error'];
+
+        $_FILES["files1"]['name'][] = $name;
+        $_FILES["files1"]['type'][] = $type;
+        $_FILES["files1"]['size'][] = $size;
+        $_FILES["files1"]['tmp_name'][] = $tmp_name;
+        $_FILES["files1"]['error'][] = $error;
+
+        // $this->addUploadFile("test1.txt", "a");
+
+        $controller = new SubmissionController($this->core);
+        // $return = $controller->ajaxUploadSubmission('c_failure_messages');
+        $return = $controller->ajaxUploadSubmission($_POST["gradeable"]);
+
+    }
+
 
 
     /**
@@ -1179,6 +1242,12 @@ class SubmissionController extends AbstractController {
                 if (isset($_FILES["files{$i}"])) {
                     $uploaded_files[$i] = $_FILES["files{$i}"];
                 }
+                // elseif (isset($_FILES["new"])) {
+                //     return $this->uploadResult("new is Set.", false);
+                // }
+                // else {
+                //     return $this->uploadResult("ISSET IS FALSE.", false);
+                // }
             }
 
             $errors = [];
@@ -1398,15 +1467,15 @@ class SubmissionController extends AbstractController {
                             }
                         }
                         else {
-                            if (is_uploaded_file($uploaded_files[$i]["tmp_name"][$j])) {
+                            // if (is_uploaded_file($uploaded_files[$i]["tmp_name"][$j])) {
                                 $dst = FileUtils::joinPaths($part_path[$i], $uploaded_files[$i]["name"][$j]);
                                 if (!@copy($uploaded_files[$i]["tmp_name"][$j], $dst)) {
                                     return $this->uploadResult("Failed to copy uploaded file {$uploaded_files[$i]["name"][$j]} to current submission.", false);
                                 }
-                            }
-                            else {
-                                return $this->uploadResult("The tmp file '{$uploaded_files[$i]['name'][$j]}' was not properly uploaded.", false);
-                            }
+                            // }
+                            // else {
+                            //     return $this->uploadResult("The tmp file '{$uploaded_files[$i]['name'][$j]}' was not properly uploaded.", false);
+                            // }
                         }
                         // Is this really an error we should fail on?
                         if (!@unlink($uploaded_files[$i]["tmp_name"][$j])) {

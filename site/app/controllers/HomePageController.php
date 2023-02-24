@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\controllers\student\SubmissionController;
+use app\exceptions\IOException;
 use app\libraries\response\RedirectResponse;
 use app\models\gradeable\Component;
 use app\models\gradeable\Gradeable;
@@ -9,6 +11,8 @@ use app\models\gradeable\GradeableUtils;
 use app\models\Course;
 use app\models\User;
 use app\libraries\Core;
+use app\libraries\FileUtils;
+use app\libraries\Utils;
 use app\libraries\response\MultiResponse;
 use app\libraries\response\WebResponse;
 use app\libraries\response\JsonResponse;
@@ -22,6 +26,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class HomePageController extends AbstractController {
     /**
+     * @var array
+     */
+    private $config = [];
+
+    /**
      * HomePageController constructor.
      *
      * @param Core $core
@@ -30,52 +39,46 @@ class HomePageController extends AbstractController {
         parent::__construct($core);
     }
 
-    /**
-     * Returns all gradeables from all courses for a user
-     * @Route("/api/gradeableComponentPage", methods={"GET"})
-     *
-     * @param string|null $user_id
-     * @return MultiResponse
-     */
-    public function getGradeableComponentPage($user_id = null) {
+    //     /**
+    //  * Creates a file with the given contents to be used to upload for a specified part.
+    //  *
+    //  * @param string $filename
+    //  * @param string $content
+    //  * @param int    $part
+    //  */
+    // private function addUploadFile($filename, $content = "", $part = 1) {
+    //     $this->config['tmp_path'] = FileUtils::joinPaths(sys_get_temp_dir(), Utils::generateRandomString());
 
-        // This goes through each course of the user, puts all gradeables into an array,
-        // then for each gradeable it array_maps the info
+    //     FileUtils::createDir(FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part), true, 0777);
+    //     $filepath = FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part, $filename);
 
-        $user = $this->core->getUser();
-        if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_SUPERUSER) {
-            $user_id = $user->getId();
-        }
-
-        $gradeables = [];
-        // Load the gradeable information for each course
-        $courses = $this->core->getQueries()->getCourseForUserId($user->getId());
-        foreach ($courses as $course) {
-            $gradeables_of_course = GradeableUtils::getGradeablesFromCourse($this->core, $course);
-            $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
-        }
+    //     if (file_put_contents($filepath, $content) === false) {
+    //         throw new IOException("Could not write file to {$filepath}");
+    //     }
+    //     $_FILES["files{$part}"]['name'][] = $filename;
+    //     $_FILES["files{$part}"]['type'][] = mime_content_type($filepath);
+    //     $_FILES["files{$part}"]['size'][] = filesize($filepath);
+    //     $_FILES["files{$part}"]['tmp_name'][] = $filepath;
+    //     $_FILES["files{$part}"]['error'][] = null;
+    // }
 
 
+    // /**
+    //  * Submit a submission to a gradeable
+    //  * @Route("/api/submit", methods={"POST"})
+    //  *
+    //  * @param string|null $user_id
+    //  * @return MultiResponse
+    //  */
+    // public function submitSubmission($user_id = null) {
 
-        $callback = function (Gradeable $gradeable) {
-            $components = $gradeable->getComponents();
-            $page = components[0]->getPage()
-            return (string)$page;
-            // return $gradeable->getGradeableInfo();
-        };
+    //     $this->addUploadFile("test1.txt", "", 1);
 
-        return MultiResponse::JsonOnlyResponse(
-            JsonResponse::getSuccessResponse([
-                "gradeable_components_info" => array_map($callback, $gradeables),
-            ])
-        );
+    //     $controller = new SubmissionController($this->core);
+    //     $return = $controller->ajaxUploadSubmission('c_failure_messages');
+    //     // $return = $controller->ajaxUploadSubmission('hi');
 
-        // return MultiResponse::JsonOnlyResponse(
-        //     JsonResponse::getSuccessResponse([
-        //         "gradeable_info" => "hello"
-        //     ])
-        // );
-    }
+    // }
 
 
     /**
@@ -87,10 +90,6 @@ class HomePageController extends AbstractController {
      */
     public function getGradeables($user_id = null) {
 
-        header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Credentials: true");
-        header("Access-Control-Allow-Methods: GET, POST");
-
         // This goes through each course of the user, puts all gradeables into an array,
         // then for each gradeable it array_maps the info
 
@@ -103,8 +102,9 @@ class HomePageController extends AbstractController {
         // Load the gradeable information for each course
         $courses = $this->core->getQueries()->getCourseForUserId($user->getId());
         foreach ($courses as $course) {
-            $gradeables_of_course = GradeableUtils::getGradeablesFromCourse($this->core, $course);
+            $gradeables_of_course = GradeableUtils::getGradeablesFromCourseApi($this->core, $course);
             $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
+            // array_push($gradeables, $gradeables_of_course);
         }
 
         $callback = function (Gradeable $gradeable) {
@@ -113,15 +113,9 @@ class HomePageController extends AbstractController {
 
         return MultiResponse::JsonOnlyResponse(
             JsonResponse::getSuccessResponse([
-                "gradeable_info" => array_map($callback, $gradeables),
+                array_map($callback, $gradeables)
             ])
         );
-
-        // return MultiResponse::JsonOnlyResponse(
-        //     JsonResponse::getSuccessResponse([
-        //         "gradeable_info" => "hello"
-        //     ])
-        // );
     }
 
 

@@ -63,6 +63,34 @@ class GradeableUtils {
         return ["gradeables" => $gradeables, "graded_gradeables" => $graded_gradeables, "submit_btns" => $submit_btns];
     }
 
+    public static function getGradeablesFromCourseApi(Core $core, Course $course): array {
+        /** @var array<string, Gradeable> $gradeables */
+        $gradeables = [];
+        /** @var Gradeable[] $visible_gradeables */
+        $visible_gradeables = [];
+        // Load the database and configuration of a course
+        $core->loadCourseConfig($course->getSemester(), $course->getTitle());
+        $core->loadCourseDatabase();
+
+        // Load all Gradeable objects of the current course
+        foreach ($core->getQueries()->getGradeableConfigs(null) as $gradeable) {
+            /** @var Gradeable $gradeable */
+            // $gradeables[serialize([$course->getSemester(), $course->getTitle(), $gradeable->getId()])] = $gradeable;
+
+            // array_push($gradeables[$course->getTitle()], $gradeable);
+
+            // $gradeables[serialize([$course->getTitle()])] = $gradeable;
+            $gradeables[serialize([$course->getSemester(), $course->getTitle(), $gradeable->getId()])] = $gradeable;
+            $visible_gradeables[] = $gradeable;
+        }
+
+        // Disconnect from the course database
+        $core->getCourseDB()->disconnect();
+
+        return ["gradeables" => $gradeables];
+    }
+
+
     /**
      * A static factory method to create an array that contains information for all
      * gradeables in all courses of a single user.
