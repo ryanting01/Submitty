@@ -325,7 +325,8 @@ class Gradeable extends AbstractModel {
     public function getGradeableInfo() {
         return [
             "title" => $this->title,
-            "id" => $this->id
+            "id" => $this->id,
+            "semester" => $this->core->getConfig()->getSemester()
         ];
     }
 

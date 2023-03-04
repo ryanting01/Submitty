@@ -39,48 +39,6 @@ class HomePageController extends AbstractController {
         parent::__construct($core);
     }
 
-    //     /**
-    //  * Creates a file with the given contents to be used to upload for a specified part.
-    //  *
-    //  * @param string $filename
-    //  * @param string $content
-    //  * @param int    $part
-    //  */
-    // private function addUploadFile($filename, $content = "", $part = 1) {
-    //     $this->config['tmp_path'] = FileUtils::joinPaths(sys_get_temp_dir(), Utils::generateRandomString());
-
-    //     FileUtils::createDir(FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part), true, 0777);
-    //     $filepath = FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part, $filename);
-
-    //     if (file_put_contents($filepath, $content) === false) {
-    //         throw new IOException("Could not write file to {$filepath}");
-    //     }
-    //     $_FILES["files{$part}"]['name'][] = $filename;
-    //     $_FILES["files{$part}"]['type'][] = mime_content_type($filepath);
-    //     $_FILES["files{$part}"]['size'][] = filesize($filepath);
-    //     $_FILES["files{$part}"]['tmp_name'][] = $filepath;
-    //     $_FILES["files{$part}"]['error'][] = null;
-    // }
-
-
-    // /**
-    //  * Submit a submission to a gradeable
-    //  * @Route("/api/submit", methods={"POST"})
-    //  *
-    //  * @param string|null $user_id
-    //  * @return MultiResponse
-    //  */
-    // public function submitSubmission($user_id = null) {
-
-    //     $this->addUploadFile("test1.txt", "", 1);
-
-    //     $controller = new SubmissionController($this->core);
-    //     $return = $controller->ajaxUploadSubmission('c_failure_messages');
-    //     // $return = $controller->ajaxUploadSubmission('hi');
-
-    // }
-
-
     /**
      * Returns all gradeables from all courses for a user
      * @Route("/api/gradeables", methods={"GET"})

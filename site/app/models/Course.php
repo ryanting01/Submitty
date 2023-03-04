@@ -76,6 +76,7 @@ class Course extends AbstractModel {
             "semester" => $this->semester,
             "title" => $this->title,
             "display_name" => $this->display_name,
+            "display_name" => $this->getDisplayName(),
             "display_semester" => $this->semester_name,
             "user_group" => $this->user_group,
             "registration_section" => $this->registration_section
