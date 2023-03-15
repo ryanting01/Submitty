@@ -133,6 +133,25 @@ class AutoGradedGradeable extends AbstractModel {
     }
 
     /**
+     * Gets the percent of all possible points the submitter earned
+     *  for all active versions
+     * @param bool $clamp True to clamp the output to 1
+     * @return array percentage (0 to 1), or NAN if no points possible or no active version
+     */
+    public function getAllTotalPercent($clamp = false) {
+        $results = [];
+
+        foreach ($this->auto_graded_versions as $version) {
+            // $instance = $this->getActiveVersionInstance();
+            if ($version === null) {
+                return NAN;
+            }
+            array_push($results, $version->getTotalPercent($clamp));
+        }
+        return $results;
+    }
+
+    /**
      * Gets the points the submitter earned for the active version
      * This should always return an int, except when it returns NAN, which is a float
      * @return int|float

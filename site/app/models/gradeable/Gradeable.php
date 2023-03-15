@@ -326,7 +326,11 @@ class Gradeable extends AbstractModel {
         return [
             "title" => $this->title,
             "id" => $this->id,
-            "semester" => $this->core->getConfig()->getSemester()
+            "semester" => $this->core->getConfig()->getSemester(),
+            "submissionDate" =>$this->getSubmissionOpenDate(),
+            "submissionOpen"=> $this->isSubmissionOpen(),
+            "submissionClosed" => $this->isSubmissionClosed(),
+            "isTeamAssignment" => $this->isTeamAssignment()
         ];
     }
 

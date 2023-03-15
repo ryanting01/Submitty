@@ -227,6 +227,17 @@ class GradedGradeable extends AbstractModel {
         }
         return 0;
     }
+    /**
+     * Gets the auto grading score for all versions, or 0 if none
+     * @return int
+     */
+    public function getAllAutoGradingScore() {
+        if ($this->getAutoGradedGradeable()->hasActiveVersion()) {
+            return $this->getAutoGradedGradeable()->getAllTotalPercent();
+        }
+        return 0;
+    }
+
 
     /**
      * Gets the ta grading score
@@ -275,6 +286,11 @@ class GradedGradeable extends AbstractModel {
         }
         return $this->overridden_grades !== null;
     }
+
+    public function getGradedGradeableInfo() {
+        return $this->gradeable->getGradeableInfo();
+    }
+
     /* Intentionally Unimplemented accessor methods */
 
     /** @internal */

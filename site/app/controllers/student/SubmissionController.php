@@ -36,26 +36,134 @@ class SubmissionController extends AbstractController {
     private $config = [];
 
     /**
-     * Creates a file with the given contents to be used to upload for a specified part.
+     * Submit a submission to a gradeable
+     * @Route("/api/getSubmissionFiles", methods={"POST"})
      *
-     * @param string $filename
-     * @param string $content
-     * @param int    $part
+     * @param string|null $user_id
+     * @return MultiResponse
      */
-    private function addUploadFile($filename, $content = "", $part = 1) {
-        $this->config['tmp_path'] = FileUtils::joinPaths(sys_get_temp_dir(), Utils::generateRandomString());
+    public function getSubmissionFiles($user_id = null) {
+        $this->core->loadCourseConfig($_POST["semester"], $_POST["course"]);
+        $this->core->loadCourseDatabase();
 
-        FileUtils::createDir(FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part), true, 0777);
-        $filepath = FileUtils::joinPaths($this->config['tmp_path'], 'files', 'part' . $part, $filename);
-        if (file_put_contents($filepath, $content) === false) {
-            throw new IOException("Could not write file to {$filepath}");
+        // gradeable to gradedgradeable to autogradedgradeables to autogradedversions
+        $gradeable = $this->tryGetElectronicGradeable($_POST["gradeable"]);
+        if ($gradeable === null) {
+            return $this->uploadResult("Cannot obtain results for gradeable", false);
         }
-        $_FILES["files{$part}"]['name'][] = $filename;
-        $_FILES["files{$part}"]['type'][] = mime_content_type($filepath);
-        $_FILES["files{$part}"]['size'][] = filesize($filepath);
-        $_FILES["files{$part}"]['tmp_name'][] = $filepath;
-        $_FILES["files{$part}"]['error'][] = null;
+        $graded_gradeable = $this->core->getQueries()->getGradedGradeable($gradeable, $this->core->getUser()->getId());
+        if ($graded_gradeable === null) {
+            return $this->uploadResult("GradedGradeable is Null", false);
+        }
+        $autoGradedGradeable  = $graded_gradeable->getAutoGradedGradeable();
+        if ($autoGradedGradeable === null) {
+            return $this->uploadResult("autoGradedGradeable is Null", false);
+        }
+        $autoGradedVersions = $autoGradedGradeable->getAutoGradedVersions();
+        if ($autoGradedVersions === null) {
+            return $this->uploadResult("autoGradedVersions is Null", false);
+        }
+        $result = [];
+        // foreach ($autoGradedVersions as $version) { 
+            // $result = $version->getPartFiles();
+            // $version->loadSubmissionFiles();
+        // }
+        // $autoGradedVersions["1"]->loadSubmissionFiles();
+
+        $submitter_id = $graded_gradeable->getSubmitter()->getId();
+        $course_path = $this->core->getConfig()->getCoursePath();
+        $config = $gradeable->getAutogradingConfig();
+        // Get the path to load files from (based on submission type)
+        $dirs = $gradeable->isVcs() ? ['submissions', 'checkout'] : ['submissions'];
+
+        foreach ($dirs as $dir) {
+            $path = FileUtils::joinPaths($course_path, $dir, $gradeable->getId(), $submitter_id, $_POST["version"]);
+
+            // Now load all files in the directory, flattening the results
+            $submitted_files = FileUtils::getAllFiles($path, [], false);
+        }
+
+        // readfile($submitted_files['test1.txt']["path"]);
+        // if ($submitted_files["data"] === null) {
+        //     return $this->uploadResult("submitted_files[data] is Null", false);
+        // }
+        // if ($submitted_files["data"][0] === null) {
+        //     return $this->uploadResult("submitted_files[data][0] is Null", false);
+        // }
+        // if ($submitted_files["data"][0]['test1.txt'] === null) {
+        //     return $this->uploadResult("submitted_files[data][0][test1.txt] is Null", false);
+        // }
+        // return $this->uploadResult("File path is " . $submitted_files['test1.txt']["path"], false);
+
+        $all_files = [];
+        $results = [];
+        foreach ($submitted_files as $file) {
+            if (substr($file["name"], 0, 1) != ".") {
+                // readfile($file["path"]);
+                array_push($all_files, $file);
+            }
+            // readfile($file["path"]);
+            // readfile($submitted_files[2]["path"]);
+        }
+        for ($i = 0; $i < count($all_files); $i++) {
+            if ($i == (int)$_POST["file_num"]) {
+                $file_to_send = $all_files[$i];
+                readfile($file_to_send["path"]);
+            }
+        }
+
+        return MultiResponse::JsonOnlyResponse(
+            JsonResponse::getSuccessResponse([
+                $results
+            ])
+        );
+        // return (
+            // readfile($submitted_files['test1.txt']["path"]);
+        // )
+
+
     }
+
+
+    /**
+     * Submit a submission to a gradeable
+     * @Route("/api/getResults", methods={"POST"})
+     *
+     * @param string|null $user_id
+     * @return MultiResponse
+     */
+    public function getGradeableResult($user_id = null) {
+        // $this->core->loadCourseConfig("s23", "development");
+        $this->core->loadCourseConfig($_POST["semester"], $_POST["course"]);
+        $this->core->loadCourseDatabase();
+
+        $gradeable = $this->tryGetElectronicGradeable($_POST["gradeable"]);
+        if ($gradeable === null) {
+            return $this->uploadResult("Cannot obtain results for gradeable", false);
+        }
+        $graded_gradeable = $this->core->getQueries()->getGradedGradeable($gradeable, $this->core->getUser()->getId());
+        $score = array();
+        // $score = $graded_gradeable->getAutoGradingScore();
+        $score = $graded_gradeable->getAllAutoGradingScore();
+
+        $score_length = count((array)$score);
+
+        // return $this->uploadResult("Autograding score is". strval($score[0]) . " another one, " . strval($score[1]), false);
+        if ($score_length>1) {
+            // return $this->uploadResult("Cannot obtain results for gradeable ". count($score), false);
+            return MultiResponse::JsonOnlyResponse(
+                JsonResponse::getSuccessResponse([
+                    $score
+                ])
+            );
+        } else {
+            return $this->uploadResult("Cannot obtain results for gradeable", false);
+        }
+
+        // return $graded_gradeable->getAutoGradingScore();
+
+    }
+
 
 
     /**
@@ -82,11 +190,8 @@ class SubmissionController extends AbstractController {
         $_FILES["files1"]['size'][] = $size;
         $_FILES["files1"]['tmp_name'][] = $tmp_name;
         $_FILES["files1"]['error'][] = $error;
-
-        // $this->addUploadFile("test1.txt", "a");
-
+        
         $controller = new SubmissionController($this->core);
-        // $return = $controller->ajaxUploadSubmission('c_failure_messages');
         $return = $controller->ajaxUploadSubmission($_POST["gradeable"]);
 
     }
@@ -1185,6 +1290,7 @@ class SubmissionController extends AbstractController {
 
         $this_config_inputs = [];
         $num_parts = $gradeable->getAutogradingConfig()->getNumParts();
+        // return $this->uploadResult("NUM PARTS IS: " . $num_parts, false);
         $is_notebook = $gradeable->getAutogradingConfig()->isNotebookGradeable();
         $notebook = null;
         if ($is_notebook) {
@@ -1242,13 +1348,15 @@ class SubmissionController extends AbstractController {
                 if (isset($_FILES["files{$i}"])) {
                     $uploaded_files[$i] = $_FILES["files{$i}"];
                 }
-                // elseif (isset($_FILES["new"])) {
-                //     return $this->uploadResult("new is Set.", false);
-                // }
-                // else {
-                //     return $this->uploadResult("ISSET IS FALSE.", false);
-                // }
+                elseif ($i == 2) {
+                    return $this->uploadResult("I is 2." . $_FILES["files{$i}"]["name"], false);
+                }
             }
+            // for ($i = 1; $i <= (int)$_POST["parts"]; $i++) {
+            //     if (isset($_FILES["files{$i}"])) {
+            //         $uploaded_files[$i] = $_FILES["files{$i}"];
+            //     }
+            // }
 
             $errors = [];
             $count = [];

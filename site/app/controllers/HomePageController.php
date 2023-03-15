@@ -7,6 +7,7 @@ use app\exceptions\IOException;
 use app\libraries\response\RedirectResponse;
 use app\models\gradeable\Component;
 use app\models\gradeable\Gradeable;
+use app\models\gradeable\GradedGradeable;
 use app\models\gradeable\GradeableUtils;
 use app\models\Course;
 use app\models\User;
@@ -52,21 +53,27 @@ class HomePageController extends AbstractController {
         // then for each gradeable it array_maps the info
 
         $user = $this->core->getUser();
-        if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_SUPERUSER) {
+        // if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_SUPERUSER) {
+        //     $user_id = $user->getId();
+        // }
+        if (is_null($user_id) || $user->getAccessLevel() !== User::LEVEL_USER) {
             $user_id = $user->getId();
         }
 
         $gradeables = [];
         // Load the gradeable information for each course
         $courses = $this->core->getQueries()->getCourseForUserId($user->getId());
+        // foreach ($courses as $course) {
+        //     $gradeables_of_course = GradeableUtils::getGradeablesFromCourseApi($this->core, $course);
+        //     $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
+        // }
         foreach ($courses as $course) {
-            $gradeables_of_course = GradeableUtils::getGradeablesFromCourseApi($this->core, $course);
-            $gradeables = array_merge($gradeables, $gradeables_of_course["gradeables"]);
-            // array_push($gradeables, $gradeables_of_course);
+            $gradeables_of_course = GradeableUtils::getGradeablesFromCourse($this->core, $course);
+            $gradeables = array_merge($gradeables, $gradeables_of_course["graded_gradeables"]);
         }
 
-        $callback = function (Gradeable $gradeable) {
-            return $gradeable->getGradeableInfo();
+        $callback = function (GradedGradeable $gradeable) {
+            return $gradeable->getGradedGradeableInfo();
         };
 
         return MultiResponse::JsonOnlyResponse(
