@@ -96,7 +96,7 @@ class SubmissionController extends AbstractController {
         // return $this->uploadResult("File path is " . $submitted_files['test1.txt']["path"], false);
 
         $all_files = [];
-        $results = [];
+        $path;
         foreach ($submitted_files as $file) {
             if (substr($file["name"], 0, 1) != ".") {
                 // readfile($file["path"]);
@@ -109,17 +109,16 @@ class SubmissionController extends AbstractController {
             if ($i == (int)$_POST["file_num"]) {
                 $file_to_send = $all_files[$i];
                 readfile($file_to_send["path"]);
+                $path = $file_to_send["path"];
             }
         }
 
-        return MultiResponse::JsonOnlyResponse(
-            JsonResponse::getSuccessResponse([
-                $results
-            ])
-        );
-        // return (
-            // readfile($submitted_files['test1.txt']["path"]);
-        // )
+        // return MultiResponse::JsonOnlyResponse(
+        //     JsonResponse::getSuccessResponse([
+        //         ["path" => $path]
+        //     ])
+        // );
+        return ($path);
 
 
     }
